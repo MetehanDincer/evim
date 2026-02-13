@@ -22,6 +22,7 @@ function App() {
   const [results, setResults] = useState([]);
   const [view, setView] = useState('home'); // 'home', 'admin', 'contact'
   const [logoClicks, setLogoClicks] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const firstInputRef = useRef(null);
 
@@ -275,7 +276,7 @@ function App() {
           </div>
         </div>
       )}
-      <header className="header">
+      <header className={`header ${isMenuOpen ? 'menu-open' : ''}`}>
         <div className="container header-container">
           <a href="#" onClick={(e) => { e.preventDefault(); handleSecretAccess(); }} className="logo">
             <div className="logo-icon">
@@ -285,16 +286,38 @@ function App() {
             </div>
             <div className="logo-text">ENİYİ<span>KATILIM</span></div>
           </a>
-          <nav className="nav-center">
-            {view === 'admin' ? (
-              <span className="admin-breadcrumb">Yönetim Paneli</span>
-            ) : (
-              ['ev', 'araba', 'arsa'].map(cat => (
-                <button key={cat} className={category === cat ? 'active' : ''} onClick={() => { setCategory(cat); setView('home'); }}>{cat.toUpperCase()}</button>
-              ))
-            )}
+
+          {/* Hamburger Icon */}
+          <button className={`hamburger ${isMenuOpen ? 'active' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <nav className={`nav-center ${isMenuOpen ? 'mobile-visible' : ''}`}>
+            <div className="nav-menu-content">
+              {view === 'admin' ? (
+                <span className="admin-breadcrumb">Yönetim Paneli</span>
+              ) : (
+                <div className="category-toggle-container">
+                  {['ev', 'araba', 'arsa'].map(cat => (
+                    <button
+                      key={cat}
+                      className={category === cat ? 'active' : ''}
+                      onClick={() => { setCategory(cat); setView('home'); setIsMenuOpen(false); }}
+                    >
+                      {cat.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="mobile-only-nav">
+                <a href="#" className="btn-contact-mobile" onClick={(e) => { e.preventDefault(); setView('contact'); setIsMenuOpen(false); }}>Bize Ulaşın</a>
+              </div>
+            </div>
           </nav>
-          <div className="nav-right">
+
+          <div className="nav-right desktop-only">
             <a href="#" className="btn-contact" onClick={(e) => { e.preventDefault(); setView('contact'); }}>Bize Ulaşın</a>
           </div>
         </div>
