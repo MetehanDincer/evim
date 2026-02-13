@@ -210,12 +210,20 @@
 
 /* Hamburger Menu Styles */
 @media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
   .header-container {
     display: flex !important;
     flex-direction: column !important;
     height: auto !important;
     padding: 15px !important;
-    gap: 15px !important;
+    gap: 10px !important;
   }
 
   .header-top-row {
