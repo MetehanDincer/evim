@@ -271,16 +271,16 @@
     flex-direction: column;
     justify-content: space-between;
     width: 26px;
-    /* Küçültüldü */
     height: 18px;
-    /* Küçültüldü */
     background: transparent;
     border: none;
     cursor: pointer;
     z-index: 1001;
     padding: 0;
     position: absolute;
-    right: 0;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .hamburger span {
