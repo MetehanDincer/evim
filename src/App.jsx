@@ -287,39 +287,45 @@ function App() {
             <div className="logo-text">ENİYİ<span>KATILIM</span></div>
           </a>
 
-          {/* Hamburger Icon */}
-          <button className={`hamburger ${isMenuOpen ? 'active' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+          <div className="header-center">
+            {view !== 'admin' && (
+              <div className="category-toggle-container">
+                {['ev', 'araba', 'arsa'].map(cat => (
+                  <button
+                    key={cat}
+                    className={category === cat ? 'active' : ''}
+                    onClick={() => { setCategory(cat); setView('home'); setIsMenuOpen(false); }}
+                  >
+                    {cat.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            )}
+            {view === 'admin' && <span className="admin-breadcrumb desktop-only">Yönetim Paneli</span>}
+          </div>
 
-          <nav className={`nav-center ${isMenuOpen ? 'mobile-visible' : ''}`}>
+          <div className="header-right">
+            <div className="nav-right desktop-only">
+              <a href="#" className="btn-contact" onClick={(e) => { e.preventDefault(); setView('contact'); }}>Bize Ulaşın</a>
+            </div>
+
+            {/* Hamburger Icon */}
+            <button className={`hamburger ${isMenuOpen ? 'active' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
+
+          <nav className={`nav-center-mobile ${isMenuOpen ? 'mobile-visible' : ''}`}>
             <div className="nav-menu-content">
-              {view === 'admin' ? (
-                <span className="admin-breadcrumb">Yönetim Paneli</span>
-              ) : (
-                <div className="category-toggle-container">
-                  {['ev', 'araba', 'arsa'].map(cat => (
-                    <button
-                      key={cat}
-                      className={category === cat ? 'active' : ''}
-                      onClick={() => { setCategory(cat); setView('home'); setIsMenuOpen(false); }}
-                    >
-                      {cat.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div className="mobile-only-nav">
-                <a href="#" className="btn-contact-mobile" onClick={(e) => { e.preventDefault(); setView('contact'); setIsMenuOpen(false); }}>Bize Ulaşın</a>
+              {view === 'admin' && <span className="admin-breadcrumb mobile-only">Yönetim Paneli</span>}
+              <div className="mobile-menu-links">
+                <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('contact'); setIsMenuOpen(false); }}>Bize Ulaşın</a>
+                <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); }}>Ana Sayfa</a>
               </div>
             </div>
           </nav>
-
-          <div className="nav-right desktop-only">
-            <a href="#" className="btn-contact" onClick={(e) => { e.preventDefault(); setView('contact'); }}>Bize Ulaşın</a>
-          </div>
         </div>
       </header>
 
