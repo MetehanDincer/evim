@@ -105,8 +105,10 @@
   height: 80px;
 }
 
+/* Desktop: logo is inside header-top-row, but on desktop we use display:contents
+   so it flows naturally into the single-row header */
 .header-top-row {
-  display: none;
+  display: contents;
 }
 
 .header-main-row {
@@ -119,25 +121,19 @@
   justify-content: center;
 }
 
-.header-container {
+.header-right {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  height: 80px;
+  gap: 15px;
 }
 
-.header-top-row {
+/* Desktop: hide mobile-only elements */
+.nav-center-mobile {
   display: none;
 }
 
-.header-main-row {
-  display: contents;
-}
-
-.header-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
+.hamburger {
+  display: none;
 }
 
 .desktop-only {
@@ -146,6 +142,12 @@
 
 .mobile-only {
   display: none;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
 .nav-right a {
