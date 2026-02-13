@@ -144,6 +144,78 @@
   align-items: start;
 }
 
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .calculator-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    height: auto;
+    padding: 15px 0;
+    gap: 15px;
+  }
+
+  .header {
+    height: auto;
+  }
+
+  .nav-center {
+    width: 100%;
+    justify-content: center;
+    overflow-x: auto;
+  }
+
+  .nav-center button {
+    padding: 8px 15px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .hero {
+    padding: 40px 20px 80px;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+
+  .hero p {
+    font-size: 14px;
+  }
+
+  .glass-card {
+    padding: 20px;
+  }
+
+  .payment-details {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .company-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .marginal-solutions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sol-divider {
+    text-align: center;
+    padding: 10px 0;
+  }
+}
+
 .glass-card {
   background: var(--surface);
   border: 1px solid var(--border-color);
