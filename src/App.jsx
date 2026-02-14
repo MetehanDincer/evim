@@ -25,6 +25,7 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const firstInputRef = useRef(null);
+  const calculatorRef = useRef(null);
 
   const getVadeLimits = (cat) => {
     switch (cat) {
@@ -159,12 +160,12 @@ function App() {
       setTargetAmount(1000000);
       setDownPayment(0);
       setManualMonthlyPayment(80000);
-    } else if (type === 'myPlan') {
-      setTimeout(() => {
-        firstInputRef.current?.focus();
-        firstInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
     }
+    // Tüm plan tiplerinde hesaplama alanına scroll yap
+    setTimeout(() => {
+      firstInputRef.current?.focus();
+      firstInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleSecretAccess = () => {
@@ -213,12 +214,14 @@ function App() {
       {isModalOpen && selectedResult && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content glass-card shadow-lg" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setIsModalOpen(false)}>×</button>
 
             <div className="modal-inner">
               <div className="modal-sidebar">
                 <div className="modal-header">
-                  <h2>{selectedResult.company}</h2>
+                  <div className="modal-header-top">
+                    <h2>{selectedResult.company}</h2>
+                    <button className="modal-close" onClick={() => setIsModalOpen(false)}>×</button>
+                  </div>
                   <span className="modal-badge">{selectedResult.typeLabel}</span>
                 </div>
 
@@ -234,6 +237,14 @@ function App() {
                   <div className="m-detail">
                     <label>Taksit</label>
                     <span className="text-highlight">{formatCurrency(selectedResult.monthlyPayment)} TL</span>
+                  </div>
+                  <div className="m-detail delivery-detail">
+                    <label>Tahmini Teslimat</label>
+                    <span className="delivery-month-value">
+                      {typeof selectedResult.deliveryMonth === 'string'
+                        ? selectedResult.deliveryMonth + ". Ay"
+                        : selectedResult.deliveryMonth + ". Ay"}
+                    </span>
                   </div>
                 </div>
 
@@ -279,43 +290,27 @@ function App() {
       <header className={`header ${isMenuOpen ? 'menu-open' : ''}`}>
         <div className="container header-container">
           <div className="header-top-row">
-            <a href="#" onClick={(e) => { e.preventDefault(); handleSecretAccess(); }} className="logo">
+            <a href="#" onClick={(e) => { e.preventDefault(); setView('home'); handleSecretAccess(); }} className="logo">
               <div className="logo-icon">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor" />
-                </svg>
+                <img src="/logo.png" alt="ENİYİKATILIM Logo" />
               </div>
               <div className="logo-text">ENİYİ<span>KATILIM</span></div>
             </a>
           </div>
 
           <div className="header-main-row">
-            <div className="header-left desktop-only"></div>
-
             <div className="header-center">
-              {view !== 'admin' && (
-                <div className="category-toggle-container">
-                  {['ev', 'araba', 'arsa'].map(cat => (
-                    <button
-                      key={cat}
-                      className={category === cat ? 'active' : ''}
-                      onClick={() => { setCategory(cat); setView('home'); setIsMenuOpen(false); }}
-                    >
-                      {cat.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              )}
               {view === 'admin' && <span className="admin-breadcrumb">Yönetim Paneli</span>}
             </div>
 
             <div className="header-right">
               <div className="nav-right desktop-only">
+                <a href="#" className="header-nav-link" onClick={(e) => { e.preventDefault(); setView('about'); }}>Biz Kimiz</a>
                 <a href="#" className="btn-contact" onClick={(e) => { e.preventDefault(); setView('contact'); }}>Bize Ulaşın</a>
               </div>
 
               {/* Hamburger Icon */}
-              <button className={`hamburger ${isMenuOpen ? 'active' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <button className={`hamburger ${isMenuOpen ? 'active' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)} style={isMenuOpen ? { display: 'none' } : {}}>
                 <span></span>
                 <span></span>
                 <span></span>
@@ -324,11 +319,24 @@ function App() {
           </div>
 
           <nav className={`nav-center-mobile ${isMenuOpen ? 'mobile-visible' : ''}`}>
-            <div className="nav-menu-content">
-              <div className="mobile-menu-links">
-                <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('contact'); setIsMenuOpen(false); }}>Bize Ulaşın</a>
-                <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); }}>Ana Sayfa</a>
-              </div>
+            <div className="mobile-menu-header">
+              <a href="#" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); }} className="logo">
+                <div className="logo-icon">
+                  <img src="/logo.png" alt="ENİYİKATILIM Logo" />
+                </div>
+                <div className="logo-text">ENİYİ<span>KATILIM</span></div>
+              </a>
+              <button className="mobile-menu-close" onClick={() => setIsMenuOpen(false)}>×</button>
+            </div>
+            <div className="mobile-menu-links">
+              <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); }}>Ana Sayfa</a>
+              <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); setTimeout(() => { const el = document.querySelector('.calculator-card'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300); }}>Hesaplama Aracı</a>
+              <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('about'); setIsMenuOpen(false); }}>Biz Kimiz</a>
+              <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('contact'); setIsMenuOpen(false); }}>Bize Ulaşın</a>
+            </div>
+            <div className="mobile-menu-footer">
+              <a href="#" className="mobile-menu-cta" onClick={(e) => { e.preventDefault(); setView('contact'); setIsMenuOpen(false); }}>Bize Ulaşın</a>
+              <p className="mobile-menu-tagline">⚡ En İyi Katılım Fırsatları</p>
             </div>
           </nav>
         </div>
@@ -447,14 +455,120 @@ function App() {
               </form>
             </div>
           </div>
-          <div style={{ textAlign: 'center', marginTop: '40px' }}>
-            <button className="btn-exit-admin" onClick={() => setView('home')}>Ana Sayfaya Dön</button>
-          </div>
+        </main>
+      ) : view === 'about' ? (
+        <main className="about-container">
+          <section className="about-hero">
+            <div className="container">
+              <h1>Biz <span>Kimiz?</span></h1>
+              <p>Türkiye'nin en kapsamlı katılım finans karşılaştırma platformuyuz. Hayalinizdeki eve veya arabaya en uygun planla ulaşmanız için yanınızdayız.</p>
+            </div>
+          </section>
+
+          <section className="about-mission-section">
+            <div className="container">
+              <div className="about-cards-grid">
+                <div className="about-card glass-card">
+                  <div className="about-card-icon">🎯</div>
+                  <h3>Misyonumuz</h3>
+                  <p>BDDK onaylı tüm katılım finans şirketlerinin tekliflerini tek bir platformda toplayarak, kullanıcılarımızın en doğru finansal kararı vermesini sağlamak.</p>
+                </div>
+                <div className="about-card glass-card">
+                  <div className="about-card-icon">🔭</div>
+                  <h3>Vizyonumuz</h3>
+                  <p>Katılım finans sektöründe Türkiye'nin en güvenilir ve en çok tercih edilen dijital karşılaştırma platformu olmak.</p>
+                </div>
+                <div className="about-card glass-card">
+                  <div className="about-card-icon">💎</div>
+                  <h3>Neden Biz?</h3>
+                  <p>Bağımsız ve tarafsız karşılaştırma, anlık güncel veriler ve kullanıcı dostu arayüzümüzle fark yaratıyoruz.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="about-stats-section">
+            <div className="container">
+              <div className="about-stats-grid">
+                <div className="about-stat">
+                  <span className="about-stat-number">10+</span>
+                  <span className="about-stat-label">Katılım Şirketi</span>
+                </div>
+                <div className="about-stat">
+                  <span className="about-stat-number">50K+</span>
+                  <span className="about-stat-label">Karşılaştırma</span>
+                </div>
+                <div className="about-stat">
+                  <span className="about-stat-number">%100</span>
+                  <span className="about-stat-label">Tarafsız</span>
+                </div>
+                <div className="about-stat">
+                  <span className="about-stat-number">7/24</span>
+                  <span className="about-stat-label">Erişim</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="about-values-section">
+            <div className="container">
+              <h2>Değerlerimiz</h2>
+              <div className="about-values-grid">
+                <div className="about-value">
+                  <div className="about-value-icon">🛡️</div>
+                  <h4>Güvenilirlik</h4>
+                  <p>Sadece BDDK onaylı, lisanslı şirketlerin tekliflerini sunuyoruz.</p>
+                </div>
+                <div className="about-value">
+                  <div className="about-value-icon">⚡</div>
+                  <h4>Hız</h4>
+                  <p>Saniyeler içinde tüm şirketlerin tekliflerini karşılaştırın.</p>
+                </div>
+                <div className="about-value">
+                  <div className="about-value-icon">🤝</div>
+                  <h4>Şeffaflık</h4>
+                  <p>Hiçbir gizli ücret veya komisyon yoktur. Ne görüyorsanız o.</p>
+                </div>
+                <div className="about-value">
+                  <div className="about-value-icon">📊</div>
+                  <h4>Doğruluk</h4>
+                  <p>Verilerimiz gerçek zamanlı güncellenir, her zaman güncel bilgi.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="about-cta-section">
+            <div className="container">
+              <div className="about-cta glass-card">
+                <h2>Hayalinizdeki Eve veya Arabaya Ulaşın</h2>
+                <p>Hemen hesaplama aracımızı kullanarak size en uygun katılım planını keşfedin.</p>
+                <button className="btn-about-cta" onClick={() => setView('home')}>Hesaplamaya Başla</button>
+              </div>
+            </div>
+          </section>
         </main>
       ) : (
         <main className="main">
           <section className="hero">
             <div className="container">
+              <div className="category-toggle-container hero-categories">
+                {['ev', 'araba', 'arsa'].map(cat => (
+                  <button
+                    key={cat}
+                    className={category === cat ? 'active' : ''}
+                    onClick={() => {
+                      setCategory(cat);
+                      setView('home');
+                      setTimeout(() => {
+                        calculatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }, 150);
+                    }}
+                  >
+                    {cat.toUpperCase()}
+                  </button>
+                ))}
+              </div>
               <h1>Hayalindeki <span className="text-secondary">{category.toUpperCase()}</span> kapında!</h1>
               <p>Siz sadece hayalinizi kurun, biz Türkiye'nin en seçkin BDDK onaylı şirketlerinden tekliflerinizi alarak size en uygun olanı bulalım.</p>
             </div>
@@ -463,7 +577,7 @@ function App() {
           <section className="calculator-section">
             <div className="container">
               <div className="calculator-grid">
-                <aside className="calculator-card glass-card">
+                <aside ref={calculatorRef} className="calculator-card glass-card">
                   <h3>Hesaplama Aracı</h3>
                   <div className="plan-type-selector">
                     <label>Plan Türü Seçin</label>
