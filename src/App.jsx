@@ -161,10 +161,15 @@ function App() {
       setDownPayment(0);
       setManualMonthlyPayment(80000);
     }
-    // Tüm plan tiplerinde hesaplama alanına scroll yap
+    // Tüm plan tiplerinde hesaplama alanına scroll yap (Offsetli)
     setTimeout(() => {
-      firstInputRef.current?.focus();
-      firstInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (firstInputRef.current) {
+        const yOffset = -150; // Header payı + Label payı
+        const element = firstInputRef.current;
+        const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+        element.focus({ preventScroll: true }); // Scroll'u biz yönettik, focus tekrar scroll etmesin
+      }
     }, 100);
   };
 
@@ -330,7 +335,7 @@ function App() {
             </div>
             <div className="mobile-menu-links">
               <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); }}>Ana Sayfa</a>
-              <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); setTimeout(() => { const el = document.querySelector('.calculator-card'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300); }}>Hesaplama Aracı</a>
+              <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); setTimeout(() => { const el = document.querySelector('.calculator-card'); if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 100; window.scrollTo({ top: y, behavior: 'smooth' }); } }, 300); }}>Hesaplama Aracı</a>
               <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('about'); setIsMenuOpen(false); }}>Biz Kimiz</a>
               <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('contact'); setIsMenuOpen(false); }}>Bize Ulaşın</a>
             </div>
