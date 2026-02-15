@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
+import SEO from './components/SEO';
 import './App.css';
 
 const COMPANIES = [
@@ -215,6 +217,10 @@ function App() {
 
   return (
     <div className="App">
+      <SEO
+        title={view === 'home' ? 'Ana Sayfa - En Uygun Katılım Planlarını Karşılaştır' : view === 'about' ? 'Hakkımızda' : view === 'contact' ? 'İletişim' : 'Yönetim Paneli'}
+        description={view === 'home' ? 'Türkiye\'nin en iyi katılım evim, tasarruf finansman şirketlerinin tekliflerini karşılaştırın. Faizsiz ev ve araba sahibi olun.' : 'En İyi Katılım hakkında bilgi alın.'}
+      />
       {/* Modal - Taksit Detayları */}
       {isModalOpen && selectedResult && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
@@ -256,7 +262,16 @@ function App() {
                 <div className="lead-form-section">
                   <h3>Resmi Başvuru Sayfası</h3>
                   <p>Bu plan için şirket temsilcisi ile görüşmek ve resmi süreci başlatmak için şirketin başvuru sayfasına yönlendirileceksiniz.</p>
-                  <a href={selectedResult.applyUrl} target="_blank" rel="noopener noreferrer" className="btn-submit-lead-link" onClick={() => console.log(`Lead Clicked: ${selectedResult.companyId}`)}>
+                  <a href={selectedResult.applyUrl} target="_blank" rel="noopener noreferrer" className="btn-submit-lead-link" onClick={() => {
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({
+                      'event': 'offer_click',
+                      'company_id': selectedResult.companyId,
+                      'company_name': selectedResult.company,
+                      'plan_type': selectedResult.typeLabel
+                    });
+                    console.log(`Lead Clicked: ${selectedResult.companyId}`);
+                  }}>
                     Şirket Sayfasına Git ve Başvur
                   </a>
                   <p className="form-footer">Başvurunuz doğrudan ilgili finansman şirketi tarafından alınacaktır.</p>
@@ -433,7 +448,15 @@ function App() {
             </div>
 
             <div className="contact-form-container glass-card">
-              <form className="contact-form" onSubmit={(e) => { e.preventDefault(); alert('Mesajınız başarıyla iletildi!'); setView('home'); }}>
+              <form className="contact-form" onSubmit={(e) => {
+                e.preventDefault();
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                  'event': 'contact_form_submit'
+                });
+                alert('Mesajınız başarıyla iletildi!');
+                setView('home');
+              }}>
                 <div className="form-row">
                   <div className="input-group">
                     <label>Adınız Soyadınız</label>
