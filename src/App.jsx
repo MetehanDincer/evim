@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import SEO from './components/SEO';
+import Blog from './components/Blog';
 import './App.css';
 
 const COMPANIES = [
@@ -325,6 +326,7 @@ function App() {
 
             <div className="header-right">
               <div className="nav-right desktop-only">
+                <a href="#" className="header-nav-link" onClick={(e) => { e.preventDefault(); setView('blog'); }}>Blog</a>
                 <a href="#" className="header-nav-link" onClick={(e) => { e.preventDefault(); setView('about'); }}>Biz Kimiz</a>
                 <a href="#" className="btn-contact" onClick={(e) => { e.preventDefault(); setView('contact'); }}>Bize Ulaşın</a>
               </div>
@@ -351,6 +353,7 @@ function App() {
             <div className="mobile-menu-links">
               <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); }}>Ana Sayfa</a>
               <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('home'); setIsMenuOpen(false); setTimeout(() => { const el = document.querySelector('.calculator-card'); if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 100; window.scrollTo({ top: y, behavior: 'smooth' }); } }, 300); }}>Hesaplama Aracı</a>
+              <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('blog'); setIsMenuOpen(false); }}>Blog & Haberler</a>
               <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('about'); setIsMenuOpen(false); }}>Biz Kimiz</a>
               <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); setView('contact'); setIsMenuOpen(false); }}>Bize Ulaşın</a>
             </div>
@@ -576,6 +579,8 @@ function App() {
             </div>
           </section>
         </main>
+      ) : view === 'blog' ? (
+        <Blog setView={setView} />
       ) : (
         <main className="main">
           <section className="hero">
