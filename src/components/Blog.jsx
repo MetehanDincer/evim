@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 import SEO from './SEO';
 
 const BLOG_POSTS = [
@@ -303,7 +305,6 @@ const BLOG_POSTS = [
   }
 ];
 
-import { useNavigate } from 'react-router-dom';
 
 export default function Blog() {
   const [selectedPost, setSelectedPost] = useState(null);
