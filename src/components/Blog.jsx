@@ -303,8 +303,11 @@ const BLOG_POSTS = [
   }
 ];
 
-export default function Blog({ setView }) {
+import { useNavigate } from 'react-router-dom';
+
+export default function Blog() {
   const [selectedPost, setSelectedPost] = useState(null);
+  const navigate = useNavigate();
 
   if (selectedPost) {
     return (
@@ -333,7 +336,7 @@ export default function Blog({ setView }) {
           <div className="article-footer">
             <h3>İlginizi Çekebilir: Hesaplama Aracı</h3>
             <p>Bu makalede bahsedilen fırsatları kaçırmamak için hemen size özel ödeme planını oluşturun.</p>
-            <button className="btn-article-cta" onClick={() => setView('home')}>Hemen Hesapla</button>
+            <button className="btn-article-cta" onClick={() => navigate('/')}>Hemen Hesapla</button>
           </div>
         </article>
       </div>
@@ -342,10 +345,10 @@ export default function Blog({ setView }) {
 
   return (
     <div className="blog-container container">
-      <SEO
-        title="Blog & Haberler"
-        description="Tasarruf finansman sektörü haberleri, BDDK düzenlemeleri ve faizsiz ev alma rehberleri."
-      />
+      <Helmet>
+        <title>Blog & Haberler - En İyi Katılım</title>
+        <meta name="description" content="Tasarruf finansman sektörü haberleri, BDDK düzenlemeleri ve faizsiz ev alma rehberleri." />
+      </Helmet>
       <div className="blog-head">
         <h1>Sektörden <span>Haberler</span> ve Gelişmeler</h1>
         <p>Son 5 yılın önemli olayları, yasal düzenlemeler ve güncel fırsatlar.</p>
