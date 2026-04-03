@@ -13,6 +13,25 @@ const COMPANIES = [
     { id: 'adil', name: 'Adil Tasarruf', feeRate: 0.070, applyUrl: 'https://adiltasarruf.com.tr/basvuru' },
 ];
 
+const PLAN_INFOS = {
+    'myPlan': {
+        title: 'Benim Planım',
+        desc: 'Aylık ödeme gücünüzü ve peşinatınızı tamamen kendi bütçenize göre ayarlayabildiğiniz, esnek bir katılım modelidir. Düzenli ödemelerle birikim yaparken, hedefinize kendi temponuzda ulaşırsınız.'
+    },
+    'percent40': {
+        title: '6. Ay Teslimat',
+        desc: 'Tasarruf sürecinde toplam hedefin %40\'ına ulaştığınız 6. ayda teslimatınızın garantilendiği plandır. Hızlı teslimat isteyenler için idealdir.'
+    },
+    'midTerm': {
+        title: 'Vade Ortası',
+        desc: 'Toplam belirlenen taksit vadesinin tam yarısına gelindiğinde teslimatın yapıldığı, tarihi önceden net olarak bilinen sistemdir.'
+    },
+    'lottery': {
+        title: 'Çekilişli',
+        desc: 'Aynı hedefe sahip kişilerin oluşturduğu gruplarda noter huzurunda yapılan sıra tespiti ile teslimat ayınızın belirlendiği sistemdir. İlk aylarda teslim alma şansı sunar.'
+    }
+};
+
 export default function Home() {
     const [targetAmount, setTargetAmount] = useState(3000000);
     const [downPayment, setDownPayment] = useState(0);
@@ -22,6 +41,7 @@ export default function Home() {
     const [results, setResults] = useState([]);
     const [selectedResult, setSelectedResult] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [infoModalOpen, setInfoModalOpen] = useState(null);
 
     const firstInputRef = useRef(null);
     const calculatorRef = useRef(null);
@@ -156,6 +176,18 @@ export default function Home() {
                 <meta name="description" content="Türkiye'nin en iyi katılım evim, tasarruf finansman şirketlerinin tekliflerini karşılaştırın. Faizsiz ev ve araba sahibi olun." />
             </Helmet>
 
+            {infoModalOpen && (
+                <div className="modal-overlay" style={{ zIndex: 2000 }} onClick={() => setInfoModalOpen(null)}>
+                    <div className="modal-content glass-card shadow-lg" style={{ maxWidth: '400px', margin: 'auto' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header-top" style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px solid var(--border-color)' }}>
+                            <h2 style={{ fontSize: '18px', margin: 0, fontWeight: '700', color: 'var(--primary-dark)' }}>{PLAN_INFOS[infoModalOpen].title} Nedir?</h2>
+                            <button className="modal-close" onClick={() => setInfoModalOpen(null)}>×</button>
+                        </div>
+                        <p style={{ lineHeight: '1.6', color: 'var(--text-muted)', fontSize: '15px' }}>{PLAN_INFOS[infoModalOpen].desc}</p>
+                    </div>
+                </div>
+            )}
+
             {isModalOpen && selectedResult && (
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
                     <div className="modal-content glass-card shadow-lg" onClick={e => e.stopPropagation()}>
@@ -244,7 +276,7 @@ export default function Home() {
             <section className="hero">
                 <div className="container">
                     <div className="category-toggle-container hero-categories">
-                        {['ev', 'araba', 'arsa'].map(cat => (
+                        {['ev', 'araba', 'iş yeri'].map(cat => (
                             <button
                                 key={cat}
                                 className={category === cat ? 'active' : ''}
@@ -255,11 +287,11 @@ export default function Home() {
                                     }, 150);
                                 }}
                             >
-                                {cat.toUpperCase()}
+                                {cat.toLocaleUpperCase('tr-TR')}
                             </button>
                         ))}
                     </div>
-                    <h1>Hayalindeki <span className="text-secondary">{category.toUpperCase()}</span> kapında!</h1>
+                    <h1>Hayalindeki <span className="text-secondary">{category.toLocaleUpperCase('tr-TR')}</span> kapında!</h1>
                     <p>Siz sadece hayalinizi kurun, biz Türkiye'nin en seçkin BDDK onaylı şirketlerinden tekliflerinizi alarak size en uygun olanı bulalım.</p>
                 </div>
             </section>
@@ -272,14 +304,26 @@ export default function Home() {
                             <div className="plan-type-selector">
                                 <label>Plan Türü Seçin</label>
                                 <div className="type-buttons">
-                                    <button className={planType === 'myPlan' ? 'active' : ''} onClick={() => handlePlanChange('myPlan')}>Benim Planım</button>
-                                    <button className={planType === 'percent40' ? 'active' : ''} onClick={() => handlePlanChange('percent40')}>6. Ay Teslimat</button>
-                                    <button className={planType === 'midTerm' ? 'active' : ''} onClick={() => handlePlanChange('midTerm')}>Vade Ortası</button>
-                                    <button className={planType === 'lottery' ? 'active' : ''} onClick={() => handlePlanChange('lottery')}>Çekilişli</button>
+                                    <div className="plan-btn-wrapper">
+                                        <button className={planType === 'myPlan' ? 'active' : ''} onClick={() => handlePlanChange('myPlan')}>Benim Planım</button>
+                                        <div className="info-icon-btn" onClick={() => setInfoModalOpen('myPlan')}>i</div>
+                                    </div>
+                                    <div className="plan-btn-wrapper">
+                                        <button className={planType === 'percent40' ? 'active' : ''} onClick={() => handlePlanChange('percent40')}>6. Ay Teslimat</button>
+                                        <div className="info-icon-btn" onClick={() => setInfoModalOpen('percent40')}>i</div>
+                                    </div>
+                                    <div className="plan-btn-wrapper">
+                                        <button className={planType === 'midTerm' ? 'active' : ''} onClick={() => handlePlanChange('midTerm')}>Vade Ortası</button>
+                                        <div className="info-icon-btn" onClick={() => setInfoModalOpen('midTerm')}>i</div>
+                                    </div>
+                                    <div className="plan-btn-wrapper">
+                                        <button className={planType === 'lottery' ? 'active' : ''} onClick={() => handlePlanChange('lottery')}>Çekilişli</button>
+                                        <div className="info-icon-btn" onClick={() => setInfoModalOpen('lottery')}>i</div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="input-group">
-                                <label>Alınacak {category.charAt(0).toUpperCase() + category.slice(1)} Bedeli</label>
+                                <label>Alınacak {category.charAt(0).toLocaleUpperCase('tr-TR') + category.slice(1)} Bedeli</label>
                                 <div className="input-wrapper">
                                     <input ref={firstInputRef} type="text" value={formatRawValue(targetAmount)} onChange={(e) => setTargetAmount(parseFormattedValue(e.target.value))} />
                                     <span className="currency">TL</span>
@@ -332,6 +376,7 @@ export default function Home() {
                                         <div className="payment-details">
                                             <div className="detail"><label>Aylık Taksit</label><span className="text-highlight">{formatCurrency(res.monthlyPayment)} TL</span></div>
                                             <div className="detail"><label>Katılım Bedeli</label><span>{formatCurrency(res.fee)} TL</span></div>
+                                            <div className="detail"><label>Finansman Tutarı</label><span>{formatCurrency(res.target)} TL</span></div>
                                             <div className="detail"><label>Toplam Vade</label><span>{res.totalMonths} Ay</span></div>
                                         </div>
                                         <button className="btn-apply" onClick={() => handleOpenDetails(res)}>Taksitleri Gör ve Ücretsiz Başvur</button>
