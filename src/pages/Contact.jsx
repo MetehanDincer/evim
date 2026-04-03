@@ -23,21 +23,21 @@ export default function Contact() {
                         <div className="info-icon">📍</div>
                         <div className="info-text">
                             <label>Adres</label>
-                            <span>Levent, Büyükdere Cd. No:123, 34394 Şişli/İstanbul</span>
+                            <span>Göktürk Merkez Mah. İstanbul Caddesi NO:28 Gökmahal Sitesi A15 Ofis - Göktürk - Eyüp - İSTANBUL</span>
                         </div>
                     </div>
                     <div className="info-card glass-card">
                         <div className="info-icon">📞</div>
                         <div className="info-text">
                             <label>Telefon</label>
-                            <span>+90 (212) 555 00 00</span>
+                            <span><a href="tel:+905344274718" style={{ color: 'inherit', textDecoration: 'none' }}>0 534 427 47 18</a></span>
                         </div>
                     </div>
                     <div className="info-card glass-card">
                         <div className="info-icon">✉️</div>
                         <div className="info-text">
                             <label>E-posta</label>
-                            <span>iletisim@eniyikatilim.com</span>
+                            <span><a href="mailto:info@eniyikatilim.com" style={{ color: 'inherit', textDecoration: 'none' }}>info@eniyikatilim.com</a></span>
                         </div>
                     </div>
                 </div>

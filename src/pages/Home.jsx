@@ -376,7 +376,7 @@ export default function Home() {
                                         <div className="payment-details">
                                             <div className="detail"><label>Aylık Taksit</label><span className="text-highlight">{formatCurrency(res.monthlyPayment)} TL</span></div>
                                             <div className="detail"><label>Katılım Bedeli</label><span>{formatCurrency(res.fee)} TL</span></div>
-                                            <div className="detail"><label>Finansman Tutarı</label><span>{formatCurrency(res.target)} TL</span></div>
+                                            <div className="detail"><label>Finansman Bedeli</label><span>{formatCurrency(res.target + res.fee)} TL</span></div>
                                             <div className="detail"><label>Toplam Vade</label><span>{res.totalMonths} Ay</span></div>
                                         </div>
                                         <button className="btn-apply" onClick={() => handleOpenDetails(res)}>Taksitleri Gör ve Ücretsiz Başvur</button>
