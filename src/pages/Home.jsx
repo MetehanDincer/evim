@@ -273,7 +273,19 @@ export default function Home() {
             }
         });
 
-        doc.save(`${companyName.replace(/\s+/g, '_')}_Odeme_Plani.pdf`);
+        const fileName = `${companyName.replace(/\s+/g, '_')}_Odeme_Plani.pdf`;
+        
+        // Mobil cihazlarda, özellikle iOS tabanlı tarayıcılarda doc.save() mevcut sekmenin yerini
+        // alarak kapatma butonunu yok edebilir. Bu durumu engellemek için yeni sekmede/pencerede açıyoruz.
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        if (isIOS) {
+            const blob = doc.output('blob');
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl, '_blank');
+        } else {
+            doc.save(fileName);
+        }
         } catch (e) {
             console.error("PDF oluşturma hatası:", e);
             alert("PDF oluşturulurken bir hata oluştu: " + e.message);
