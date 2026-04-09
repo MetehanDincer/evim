@@ -275,17 +275,23 @@ export default function Home() {
 
         const fileName = `${companyName.replace(/\s+/g, '_')}_Odeme_Plani.pdf`;
         
-        // Mobil cihazlarda, özellikle iOS tabanlı tarayıcılarda doc.save() mevcut sekmenin yerini
-        // alarak kapatma butonunu yok edebilir. Bu durumu engellemek için yeni sekmede/pencerede açıyoruz.
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-        if (isIOS) {
-            const blob = doc.output('blob');
-            const blobUrl = URL.createObjectURL(blob);
-            window.open(blobUrl, '_blank');
-        } else {
-            doc.save(fileName);
-        }
+        // Güvenli İndirme Algoritması (iOS / Android / Tüm Tarayıcılar)
+        // jsPDF'in varsayılan doc.save() metodu, bazen iOS'te fallback olarak window.location.assign()
+        // kullanarak ekranın üstüne yazar ve sayfayı kilitler. Orijinal anchor yöntemini zorluyoruz:
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 300);
         } catch (e) {
             console.error("PDF oluşturma hatası:", e);
             alert("PDF oluşturulurken bir hata oluştu: " + e.message);
