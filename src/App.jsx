@@ -77,7 +77,7 @@ function App() {
 
             <div className="header-right">
               <div className="nav-right desktop-only">
-                <Link to="/karsilastir" className="header-nav-link">Karşılaştır</Link>
+                <Link to="/kampanyalar" className="header-nav-link">Kampanyalar</Link>
                 <Link to="/blog" className="header-nav-link">Blog</Link>
                 <Link to="/biz-kimiz" className="header-nav-link">Biz Kimiz</Link>
                 <Link to="/iletisim" className="btn-contact">Bize Ulaşın</Link>
@@ -105,7 +105,7 @@ function App() {
             <div className="mobile-menu-links">
               <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Ana Sayfa</Link>
               <a href="#" className="mobile-menu-link" onClick={(e) => { e.preventDefault(); scrollToCalculator(); }}>Hesaplama Aracı</a>
-              <Link to="/karsilastir" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Karşılaştır</Link>
+              <Link to="/kampanyalar" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Kampanyalar</Link>
               <Link to="/blog" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Blog & Haberler</Link>
               <Link to="/biz-kimiz" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Biz Kimiz</Link>
               <Link to="/iletisim" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Bize Ulaşın</Link>
@@ -120,7 +120,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/karsilastir" element={<div className="container" style={{padding: '150px 0', textAlign: 'center', minHeight: '60vh'}}><h2>Karşılaştır Sayfası Çok Yakında...</h2></div>} />
+        <Route path="/kampanyalar" element={<div className="container" style={{padding: '150px 0', textAlign: 'center', minHeight: '60vh'}}><h2>Kampanyalar Sayfası Çok Yakında...</h2></div>} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/biz-kimiz" element={<About />} />
         <Route path="/iletisim" element={<Contact />} />

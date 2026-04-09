@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const COMPANIES = [
     { id: 'katilimevim', name: 'Katılımevim', feeRate: 0.07, applyUrl: 'https://www.katilimevim.com.tr/basvuru' },
@@ -42,6 +44,7 @@ export default function Home() {
     const [selectedResult, setSelectedResult] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [infoModalOpen, setInfoModalOpen] = useState(null);
+    const [isFixedPayment, setIsFixedPayment] = useState(false);
 
     const firstInputRef = useRef(null);
     const calculatorRef = useRef(null);
@@ -70,7 +73,7 @@ export default function Home() {
         const monthlyPayment = customMonthly > 0 ? customMonthly : Math.ceil((target - down) / 120);
 
         let deliveryMonth = 6;
-        let calculatedTotalMonths = Math.ceil((target - down) / monthlyPayment);
+        let initialCalculatedTotalMonths = Math.ceil((target - down) / monthlyPayment);
 
         if (type === 'percent40' || type === 'myPlan') {
             const currentTarget40 = target * 0.4;
@@ -82,9 +85,36 @@ export default function Home() {
                 deliveryMonth = Math.max(6, monthsToReach40);
             }
         } else if (type === 'midTerm') {
-            deliveryMonth = Math.max(6, Math.ceil(calculatedTotalMonths / 2));
+            deliveryMonth = Math.max(6, Math.ceil(initialCalculatedTotalMonths / 2));
         } else if (type === 'lottery') {
-            deliveryMonth = "1 - " + Math.ceil(calculatedTotalMonths / 2);
+            deliveryMonth = "1 - " + Math.max(6, Math.ceil(initialCalculatedTotalMonths / 2));
+        }
+
+        let tempDebt = target - down;
+        let actualTotalMonths = 0;
+        let actualDeliveryMonthForSim = Number.MAX_SAFE_INTEGER;
+        
+        if (typeof deliveryMonth === 'number') {
+            actualDeliveryMonthForSim = deliveryMonth;
+        } else if (typeof deliveryMonth === 'string') {
+            const match = deliveryMonth.match(/\d+$/);
+            if (match) {
+                actualDeliveryMonthForSim = parseInt(match[0], 10);
+            }
+        }
+
+        while (tempDebt > 0) {
+            actualTotalMonths++;
+            let currentInstallment = monthlyPayment;
+            let postDeliveryMonth = actualTotalMonths - actualDeliveryMonthForSim;
+            
+            if (!isFixedPayment && postDeliveryMonth > 0) {
+                let extraPeriods = Math.floor((postDeliveryMonth - 1) / 15);
+                currentInstallment = monthlyPayment * 1.30 * Math.pow(1.20, extraPeriods);
+            }
+            
+            tempDebt -= currentInstallment;
+            if (actualTotalMonths > 1000) break;
         }
 
         const getLabel = (t) => {
@@ -103,7 +133,7 @@ export default function Home() {
             fee,
             deliveryMonth,
             monthlyPayment,
-            totalMonths: calculatedTotalMonths,
+            totalMonths: actualTotalMonths,
             typeLabel: getLabel(type),
             target: targetAmount,
             down: downPayment
@@ -113,7 +143,7 @@ export default function Home() {
     useEffect(() => {
         const calculatedResults = COMPANIES.map(c => calculatePlan(targetAmount, downPayment, c, planType, manualMonthlyPayment));
         setResults(calculatedResults);
-    }, [targetAmount, downPayment, planType, manualMonthlyPayment, target40]);
+    }, [targetAmount, downPayment, planType, manualMonthlyPayment, target40, isFixedPayment]);
 
     useEffect(() => {
         if (isModalOpen) {
@@ -133,10 +163,28 @@ export default function Home() {
         const list = [];
         const initialDebt = res.target - res.down;
         let debt = initialDebt;
+        let actualDeliveryMonth = Number.MAX_SAFE_INTEGER;
+        
+        if (typeof res.deliveryMonth === 'number') {
+            actualDeliveryMonth = res.deliveryMonth;
+        } else if (typeof res.deliveryMonth === 'string') {
+            const match = res.deliveryMonth.match(/\d+$/);
+            if (match) {
+                actualDeliveryMonth = parseInt(match[0], 10);
+            }
+        }
 
         for (let i = 1; i <= res.totalMonths; i++) {
+            let installment = res.monthlyPayment;
+            let postDeliveryMonth = i - actualDeliveryMonth;
+            
+            if (!isFixedPayment && postDeliveryMonth > 0) {
+                let extraPeriods = Math.floor((postDeliveryMonth - 1) / 15);
+                installment = res.monthlyPayment * 1.30 * Math.pow(1.20, extraPeriods);
+            }
+            
             const isDelivery = i === res.deliveryMonth;
-            const currentPayment = Math.min(debt, res.monthlyPayment);
+            const currentPayment = Math.min(debt, installment);
             debt -= currentPayment;
 
             list.push({
@@ -168,6 +216,69 @@ export default function Home() {
     };
 
     const formatCurrency = (val) => new Intl.NumberFormat('tr-TR').format(val);
+
+    const handleDownloadPDF = () => {
+        try {
+            if (!selectedResult) return;
+
+        const doc = new jsPDF();
+        
+        const replaceTr = (text) => text.toString()
+            .replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
+            .replace(/ü/g, 'u').replace(/Ü/g, 'U')
+            .replace(/ş/g, 's').replace(/Ş/g, 'S')
+            .replace(/ı/g, 'i').replace(/İ/g, 'I')
+            .replace(/ö/g, 'o').replace(/Ö/g, 'O')
+            .replace(/ç/g, 'c').replace(/Ç/g, 'C');
+
+        const companyName = replaceTr(selectedResult.company);
+
+        doc.setFontSize(22);
+        doc.setTextColor(27, 61, 122);
+        doc.text(`${companyName} Taksit Plani`, 14, 22);
+
+        doc.setFontSize(11);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 30);
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Hedef Bedel: ${formatCurrency(selectedResult.target)} TL`, 14, 45);
+        doc.text(`Pesinat: ${formatCurrency(selectedResult.down)} TL`, 14, 52);
+        doc.text(`Aylik Odeme (Baslangic): ${formatCurrency(selectedResult.monthlyPayment)} TL`, 14, 59);
+        doc.text(`Teslimat Ayi: ${selectedResult.deliveryMonth}. Ay`, 14, 66);
+        doc.text(`Model: ${replaceTr(selectedResult.typeLabel)}`, 14, 73);
+
+        const installments = generateInstallments(selectedResult);
+        
+        const tableColumn = ["Taksit", "Odeme Tutari", "Kalan Borc", "Durum"];
+        const tableRows = installments.map(item => [
+            `${item.month}. Ay`,
+            `${formatCurrency(item.payment)} TL`,
+            `${formatCurrency(item.remainingDebt)} TL`,
+            item.isDelivery ? "TESLIMAT" : ""
+        ]);
+
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 85,
+            theme: 'grid',
+            headStyles: { fillColor: [27, 61, 122] },
+            alternateRowStyles: { fillColor: [240, 244, 250] },
+            didDrawPage: function (data) {
+                doc.setTextColor(220, 225, 235);
+                doc.setFontSize(70);
+                doc.text("ENIYIKATILIM", 35, doc.internal.pageSize.height / 2 + 20, { angle: 45 });
+            }
+        });
+
+        doc.save(`${companyName.replace(/\s+/g, '_')}_Odeme_Plani.pdf`);
+        } catch (e) {
+            console.error("PDF oluşturma hatası:", e);
+            alert("PDF oluşturulurken bir hata oluştu: " + e.message);
+        }
+    };
 
     return (
         <main className="main">
@@ -239,6 +350,10 @@ export default function Home() {
                                     }}>
                                         Şirket Sayfasına Git ve Başvur
                                     </a>
+                                    <button className="btn-download-pdf" onClick={handleDownloadPDF} style={{ marginTop: '12px', width: '100%', padding: '14px', borderRadius: '12px', border: '1.5px solid var(--primary)', background: 'white', color: 'var(--primary)', fontSize: '15px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} onMouseEnter={(e) => {e.target.style.background = 'var(--primary)'; e.target.style.color = 'white'}} onMouseLeave={(e) => {e.target.style.background = 'white'; e.target.style.color = 'var(--primary)'}}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                        Planı İndir (PDF)
+                                    </button>
                                     <p className="form-footer">Başvurunuz doğrudan ilgili finansman şirketi tarafından alınacaktır.</p>
                                 </div>
                             </div>
@@ -338,9 +453,62 @@ export default function Home() {
                             </div>
                             <div className="input-group manual-payment-group">
                                 <label>Aylık Ödeme Gücü (Taksit)</label>
-                                <div className="input-wrapper">
+                                <div className="input-wrapper" style={{ marginBottom: '12px' }}>
                                     <input type="text" placeholder="Örn: 50.000" value={manualMonthlyPayment === 0 ? '' : formatRawValue(manualMonthlyPayment)} onChange={(e) => setManualMonthlyPayment(parseFormattedValue(e.target.value))} />
                                     <span className="currency">TL</span>
+                                </div>
+                                <div className="payment-type-toggle" style={{ display: 'flex', gap: '8px' }}>
+                                    <button 
+                                        className={`toggle-btn ${!isFixedPayment ? 'active' : ''}`} 
+                                        onClick={() => setIsFixedPayment(false)}
+                                    >Artan Taksitli</button>
+                                    <button 
+                                        className={`toggle-btn ${isFixedPayment ? 'active' : ''}`} 
+                                        onClick={() => setIsFixedPayment(true)}
+                                    >Sabit Taksitli</button>
+                                </div>
+                                {!isFixedPayment && (
+                                    <p className="payment-info-text" style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '10px', lineHeight: '1.4', fontStyle: 'italic' }}>
+                                        * Artan taksit seçeneği; finansmanı teslim aldıktan sonra taksitlerinizin kademeli olarak arttığı modeldir.
+                                    </p>
+                                )}
+                            </div>
+                            
+                            <div className="comparison-vertical-card glass-card">
+                                <div className="cv-target-price">
+                                    <span className="cv-label">Alınacak {category.charAt(0).toLocaleUpperCase('tr-TR') + category.slice(1)} Bedeli</span>
+                                    <span className="cv-value">{formatCurrency(targetAmount)} TL</span>
+                                </div>
+                                
+                                <div className="cv-total-return-header">
+                                    <h4>Toplam Geri Ödeme</h4>
+                                </div>
+                                
+                                <div className="cv-options">
+                                    <div className="cv-option katilim-option">
+                                        <div className="cv-option-title">Katılım Finans Modeli</div>
+                                        <div className="cv-option-value">
+                                            {formatCurrency(targetAmount + (results.length > 0 ? Math.min(...results.map(r => r.fee)) : targetAmount * 0.07))} TL
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="cv-vs-divider">VS</div>
+                                    
+                                    <div className="cv-option bank-option">
+                                        <div className="cv-option-title">Banka Kredisi</div>
+                                        <div className="cv-option-value">
+                                            {formatCurrency(
+                                                (() => {
+                                                    const p = targetAmount - downPayment;
+                                                    if (p <= 0) return downPayment;
+                                                    const r = 0.010103;
+                                                    const n = 120;
+                                                    const m = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                                    return Math.round((m * n) + downPayment);
+                                                })()
+                                            )} TL
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </aside>
